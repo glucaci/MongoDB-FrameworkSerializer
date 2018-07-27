@@ -1,0 +1,7 @@
+language: csharp
+script:
+- dotnet restore src
+- dotnet build src
+- dotnet test src/Serializer.Tests/Serializer.Tests.csproj
+notifications:
+ email:false
