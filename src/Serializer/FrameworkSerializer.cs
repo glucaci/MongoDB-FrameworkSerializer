@@ -45,9 +45,15 @@ namespace MongoDB.FrameworkSerializer
                     value = BsonValueSerializer.Instance.Deserialize(context).ToNative();
                 }
 
-                if (name == FrameworkSerializerRegistry.Key)
+                if (name == Conventions.TypeAlias)
                 {
                     objectType = FrameworkSerializerRegistry.Get(value.ToString());
+                    info.SetType(objectType);
+                }
+
+                if (name == Conventions.Type)
+                {
+                    objectType = Type.GetType($"{value},{args.NominalType.Assembly.FullName}");
                     info.SetType(objectType);
                 }
 

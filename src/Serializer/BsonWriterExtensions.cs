@@ -9,8 +9,6 @@ namespace MongoDB.FrameworkSerializer
     {
         internal static void WriteTypeInformation<T>(this IBsonWriter writer, T value)
         {
-            writer.WriteName(FrameworkSerializerRegistry.Key);
-
             Type valueType = value.GetType();
 
             SerializableAliasAttribute serializableAlias =
@@ -20,10 +18,12 @@ namespace MongoDB.FrameworkSerializer
 
             if (serializableAlias != null)
             {
+                writer.WriteName(Conventions.TypeAlias);
                 writer.WriteString(serializableAlias.Value);
             }
             else
             {
+                writer.WriteName(Conventions.Type);
                 writer.WriteString(valueType.FullName);
             }
         }

@@ -5,8 +5,6 @@ namespace MongoDB.FrameworkSerializer
 {
     public static class FrameworkSerializerRegistry
     {
-        public static string Key { get; } = "__typeAlias";
-
         private static readonly ConcurrentDictionary<string, Type> TypeMaps =
             new ConcurrentDictionary<string, Type>();
 
