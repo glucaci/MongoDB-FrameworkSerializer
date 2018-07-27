@@ -11,7 +11,10 @@ namespace MongoDB.FrameworkSerializer
 {
     internal class FrameworkSerializer<T> : IBsonSerializer<T>
     {
-        public Type ValueType => typeof(T);
+        object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+        {
+            return DeserializeCore(context, args);
+        }
 
         public T Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
@@ -64,40 +67,36 @@ namespace MongoDB.FrameworkSerializer
 
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, T value)
         {
-            if (value is ISerializable content)
+            context.Writer.WriteStartDocument();
+            context.Writer.WriteTypeInformation(value);
+
+            SerializationInfo info = ((ISerializable)value)
+                .GetSerializationInfo();
+
+            foreach (SerializationEntry entry in info)
             {
-                IBsonWriter writer = context.Writer;
-                writer.WriteStartDocument();
+                context.Writer.WriteName(entry.Name);
 
-                var info = new SerializationInfo(content.GetType(), Formatter.Default);
-                content.GetObjectData(info, new StreamingContext(StreamingContextStates.Persistence));
-
-                writer.WriteName(FrameworkSerializerRegistry.Key);
-                var serializableAlias = (SerializableAliasAttribute)content.GetType().GetCustomAttributes(typeof(SerializableAliasAttribute)).SingleOrDefault();
-                writer.WriteString(serializableAlias != null ? serializableAlias.Value : value.GetType().FullName);
-
-                foreach (SerializationEntry entry in info)
+                if (entry.Value is ISerializable)
                 {
-                    writer.WriteName(entry.Name);
+                    var serializer = BsonSerializer
+                        .SerializerRegistry
+                        .GetSerializer(entry.ObjectType);
 
-                    if (entry.Value is ISerializable)
-                    {
-                        var serializer = BsonSerializer.SerializerRegistry.GetSerializer(entry.ObjectType);
-                        serializer.Serialize(context, args, entry.Value);
-                    }
-                    else
-                    {
-                        BsonValueSerializer.Instance.Serialize(context, BsonValue.Create(entry.Value));
-                    }
+                    serializer.Serialize(context, args, entry.Value);
                 }
-
-                writer.WriteEndDocument();
+                else
+                {
+                    var bsonValue = BsonValue.Create(entry.Value);
+                    BsonValueSerializer
+                        .Instance
+                        .Serialize(context, bsonValue);
+                }
             }
+
+            context.Writer.WriteEndDocument();
         }
 
-        object IBsonSerializer.Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-        {
-            return null;
-        }
+        public Type ValueType => typeof(T);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Serializer.Tests;
 
 namespace MongoDB.FrameworkSerializer.Tests.Models
 {
