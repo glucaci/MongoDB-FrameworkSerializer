@@ -4,3 +4,4 @@
 
 MongoDB support for ISerializable
 - Dosen't support cylce dependencies for the moment.
+- Deserialization must be refined.
