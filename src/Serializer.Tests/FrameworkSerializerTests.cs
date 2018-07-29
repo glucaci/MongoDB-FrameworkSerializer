@@ -11,6 +11,9 @@ namespace MongoDB.FrameworkSerializer.Tests
         static FrameworkSerializerTests()
         {
             BsonSerializer.RegisterSerializationProvider(FrameworkSerializerProvider.Instance);
+            FrameworkSerializerRegistry.Map("Email", typeof(Email));
+            FrameworkSerializerRegistry.Map("FullName", typeof(FullName));
+            FrameworkSerializerRegistry.Map("Person", typeof(Person));
         }
 
         [Fact]
@@ -33,7 +36,7 @@ namespace MongoDB.FrameworkSerializer.Tests
             Assert.NotNull(result);
             Assert.Equal(
                 "{ " +
-                    "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.FullName\", " +
+                    "\"__typeAlias\" : \"FullName\", " +
                     "\"_firstName\" : \"Foo\", " +
                     "\"_lastName\" : \"Bar\" " +
                 "}", result);
@@ -45,7 +48,7 @@ namespace MongoDB.FrameworkSerializer.Tests
             IBsonSerializer<FullName> serializer = BsonSerializer.LookupSerializer<FullName>();
             string input =
                 "{ " +
-                    "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.FullName\", " +
+                    "\"__typeAlias\" : \"FullName\", " +
                     "\"_firstName\" : \"Foo\", " +
                     "\"_lastName\" : \"Bar\" " +
                 "}";
@@ -84,13 +87,13 @@ namespace MongoDB.FrameworkSerializer.Tests
             Assert.NotNull(result);
             Assert.Equal(
                 "{ " +
-                    "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.Person\", " +
+                    "\"__typeAlias\" : \"Person\", " +
                     "\"Email\" : { " +
-                        "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.Email\", " +
+                        "\"__typeAlias\" : \"Email\", " +
                         "\"_value\" : \"foo@gmail.com\" " +
                     "}, " +
                     "\"FullName\" : { " +
-                        "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.FullName\", " +
+                        "\"__typeAlias\" : \"FullName\", " +
                         "\"_firstName\" : \"Foo\", " +
                         "\"_lastName\" : \"Bar\" " +
                     "} " +
@@ -103,13 +106,13 @@ namespace MongoDB.FrameworkSerializer.Tests
             IBsonSerializer<Person> serializer = BsonSerializer.LookupSerializer<Person>();
             string input =
                 "{ " +
-                    "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.Person\", " +
+                    "\"__typeAlias\" : \"Person\", " +
                     "\"Email\" : { " +
-                        "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.Email\", " +
+                        "\"__typeAlias\" : \"Email\", " +
                         "\"_value\" : \"foo@gmail.com\" " +
                     "}, " +
                     "\"FullName\" : { " +
-                        "\"__type\" : \"MongoDB.FrameworkSerializer.Tests.Models.FullName\", " +
+                        "\"__typeAlias\" : \"FullName\", " +
                         "\"_firstName\" : \"Foo\", " +
                         "\"_lastName\" : \"Bar\" " +
                     "} " +

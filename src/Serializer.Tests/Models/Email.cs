@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 
 namespace MongoDB.FrameworkSerializer.Tests.Models
 {
+    [SerializableAlias("Email")]
     internal class Email : ISerializable, IEquatable<Email>
     {
         private readonly string _value;

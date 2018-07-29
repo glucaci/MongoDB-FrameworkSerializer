@@ -11,7 +11,7 @@ namespace MongoDB.FrameworkSerializer
 
         internal static SerializationInfo GetSerializationInfo(this ISerializable serializable)
         {
-            var serializationInfo = new SerializationInfo(serializable.GetType(), Formatter.Default);
+            var serializationInfo = new SerializationInfo(serializable.GetType(), new FormatterConverter());
             serializable.GetObjectData(serializationInfo, new StreamingContext(StreamingContextStates.Persistence));
 
             return serializationInfo;

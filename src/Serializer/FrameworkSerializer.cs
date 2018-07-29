@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -18,23 +16,19 @@ namespace MongoDB.FrameworkSerializer
 
         public T Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            return (T) DeserializeCore(context, args);
+            return (T)DeserializeCore(context, args);
         }
 
         private ISerializable DeserializeCore(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            IBsonReader reader = context.Reader;
-            reader.ReadStartDocument();
+            TypeBuilder builder = new TypeBuilder();
+            context.Reader.ReadStartDocument();
 
-            var info = new SerializationInfo(typeof(object), Formatter.Default);
-            Type objectType = null;
-
-            BsonType type;
-            while(reader.ReadBsonType() != BsonType.EndOfDocument)
+            while(context.Reader.ReadBsonType() != BsonType.EndOfDocument)
             {
-                var name = reader.ReadName();
-                type = reader.GetCurrentBsonType();
-                object value = null;
+                string name = context.Reader.ReadName();
+                BsonType type = context.Reader.GetCurrentBsonType();
+                object value;
 
                 if (type == BsonType.Document)
                 {
@@ -42,28 +36,15 @@ namespace MongoDB.FrameworkSerializer
                 }
                 else
                 {
-                    value = BsonValueSerializer.Instance.Deserialize(context).ToNative();
+                    value = BsonValueSerializer.Instance.Deserialize(context);
                 }
 
-                if (name == Conventions.TypeAlias)
-                {
-                    objectType = FrameworkSerializerRegistry.Get(value.ToString());
-                    info.SetType(objectType);
-                }
+                builder.AddField(name, value);
+            }
 
-                if (name == Conventions.Type)
-                {
-                    objectType = Type.GetType($"{value},{args.NominalType.Assembly.FullName}");
-                    info.SetType(objectType);
-                }
+            context.Reader.ReadEndDocument();
 
-                info.AddValue(name, value);
-            };
-
-            reader.ReadEndDocument();
-
-            var typeConstructor = objectType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance).FirstOrDefault();
-            return typeConstructor.Invoke(new object[] { info, new StreamingContext(StreamingContextStates.Persistence) }) as ISerializable;
+            return builder.Build();
         }
 
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
