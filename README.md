@@ -19,7 +19,7 @@ The object will not be dependent on any persistency library and can be designed 
 The object must define ```[SerializableAlias]``` attribute which will describe a `TypeAlias` and this will be mapped to the concret type. Also the object must implement ```ISerializable```.
 ```csharp
 [SerializableAlias("FullName")]
-internal class FullName : ISerializable
+public class FullName : ISerializable
 {
     private readonly string _firstName;
     private readonly string _lastName;
