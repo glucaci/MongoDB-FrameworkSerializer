@@ -10,6 +10,11 @@ The object will not be dependent on any persistency library and can be designed 
 
 # Getting Started
 
+1. Defining a Serializable Object
+2. Map TypeAlias ([Issue](https://github.com/glucaci/MongoDB-FrameworkSerializer/issues/2) - will be optional)
+3. Register FrameworkSerializer
+3. Use MongoDB Collection
+
 ## Defining a Serializable Object
 The object must define ```[SerializableAlias]``` attribute which will describe a `TypeAlias` and this will be mapped to the concret type. Also the object must implement ```ISerializable```.
 ```csharp
