@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.FrameworkSerializer
 {
@@ -36,7 +35,8 @@ namespace MongoDB.FrameworkSerializer
                 }
                 else
                 {
-                    value = BsonValueSerializer.Instance.Deserialize(context);
+                    value = ValueSerializer
+                        .Deserialize(context);
                 }
 
                 builder.AddField(name, value);
@@ -74,10 +74,8 @@ namespace MongoDB.FrameworkSerializer
                 }
                 else
                 {
-                    var bsonValue = BsonValue.Create(entry.Value);
-                    BsonValueSerializer
-                        .Instance
-                        .Serialize(context, bsonValue);
+                    ValueSerializer
+                        .Serialize(context, entry.Value);
                 }
             }
 

@@ -5,6 +5,7 @@
     <RootNamespace>MongoDB.FrameworkSerializer</RootNamespace>
     <AssemblyName>MongoDB.FrameworkSerializer</AssemblyName>
     <PackageId>MongoDB.FrameworkSerializer</PackageId>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
