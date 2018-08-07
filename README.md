@@ -4,6 +4,10 @@
 
 MongoDB support for using ISerializable interface from .NET
 
+By using the ISerializable interface the object will describe itself how it should be serialized. It's only tide to the .NET serialization contract and dose not brake it's encapsulation in order to be saved.
+
+The object will not be dependent on any persistency library and can be designed free of any constrains. The data layer implementation can be changed any time with something else that support the ISerializable interface.
+
 # Getting Started
 
 ## Defining a Serializable Object
@@ -65,7 +69,7 @@ _collection = db.GetCollection<FullName>("Names");
 FullName fullName = new FullName("Foo", "Bar");
 await _collection.InsertOneAsync(person);
 ```
-```json
+```
 {
     "_id" : ObjectId("5b6085323a59c131abcfd10b"),
     "__typeAlias" : "FullName",
