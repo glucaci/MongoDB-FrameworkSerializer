@@ -8,6 +8,14 @@ By using the ISerializable interface the object will describe itself how it shou
 
 The object will not be dependent on any persistency library and can be designed free of any constrains. The data layer implementation can be changed any time with something else that support the ISerializable interface.
 
+### Support
+- [x] Primitive type
+- [x] Object
+- [ ] Collections
+- [ ] Interface
+- [ ] Abstract class
+- [ ] Cycle dependency
+
 # Getting Started
 
 1. Defining a Serializable Object
