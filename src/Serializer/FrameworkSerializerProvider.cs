@@ -7,6 +7,12 @@ namespace MongoDB.FrameworkSerializer
 {
     public class FrameworkSerializerProvider : IBsonSerializationProvider
     {
+        private static readonly object[] FrameworkSerializerParameters
+            = new object[0];
+
+        private static readonly Type[] FrameworkSerializerConstructorTypes
+            = new Type[0];
+
         public static FrameworkSerializerProvider Instance { get; }
             = new FrameworkSerializerProvider();
 
@@ -22,10 +28,15 @@ namespace MongoDB.FrameworkSerializer
 
             if (typeof(ISerializable).IsAssignableFrom(type))
             {
-                var serializerType = typeof(FrameworkSerializer<>).MakeGenericType(type);
-                var serializer = serializerType.GetConstructor(new Type[0]).Invoke(new object[0]);
+                var serializerType = typeof(FrameworkSerializer<>)
+                    .MakeGenericType(type);
+                
+                var serializer = serializerType
+                    .GetConstructor(FrameworkSerializerConstructorTypes)
+                    .Invoke(FrameworkSerializerParameters);
 
-                return _serializers.GetOrAdd(type, (IBsonSerializer)serializer);
+                return _serializers
+                    .GetOrAdd(type, (IBsonSerializer)serializer);
             }
 
             return null;
