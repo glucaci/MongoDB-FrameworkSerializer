@@ -6,7 +6,7 @@ using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
 {
-    public class FrameworkSerializerTests : BaseTests
+    public class FrameworkSerializerTests : TestBase
     {
         [Fact]
         public void Serialize_OneLevelDepthObject()

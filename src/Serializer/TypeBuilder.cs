@@ -21,7 +21,8 @@ namespace MongoDB.FrameworkSerializer
 
         public void AddField(string name, object value)
         {
-            if (name == Conventions.TypeAlias)
+            if (name == Conventions.TypeAlias
+                || name == Conventions.Type)
             {
                 _objectType = FrameworkSerializerRegistry
                     .Get(value.ToString());

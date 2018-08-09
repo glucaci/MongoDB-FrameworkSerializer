@@ -21,6 +21,8 @@ namespace MongoDB.FrameworkSerializer
 
         public IBsonSerializer GetSerializer(Type type)
         {
+            FrameworkSerializerRegistry.Map(type.FullName, type);
+
             if (_serializers.TryGetValue(type, out var value))
             {
                 return value;

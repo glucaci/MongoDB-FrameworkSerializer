@@ -7,7 +7,7 @@ using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
 {
-    public class NativeTypesTests : BaseTests
+    public class NativeTypesTests : TestBase
     {
         [Fact]
         public void Serialize_MaxValues()

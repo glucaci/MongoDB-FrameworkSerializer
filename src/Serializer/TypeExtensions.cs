@@ -15,8 +15,8 @@ namespace MongoDB.FrameworkSerializer
 
         internal static ConstructorInfo GetSerializableConstructor(this Type type)
         {
-            return type.GetConstructors(
-                    BindingFlags.NonPublic | BindingFlags.Instance)
+            ConstructorInfo constructorInfo = type
+                .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                 .FirstOrDefault(info =>
                 {
                     ParameterInfo[] parameters = info.GetParameters();
@@ -28,6 +28,14 @@ namespace MongoDB.FrameworkSerializer
 
                     return false;
                 });
+
+            if (constructorInfo == null)
+            {
+                throw new InvalidOperationException(
+                    $"Type \"{type.FullName}\" has no Serialization constructor.");
+            }
+
+            return constructorInfo;
         }
     }
 }

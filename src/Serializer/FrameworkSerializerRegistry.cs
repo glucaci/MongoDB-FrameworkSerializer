@@ -20,7 +20,8 @@ namespace MongoDB.FrameworkSerializer
                 return type;
             }
 
-            throw new InvalidOperationException($"Type for alias \"{alias}\" not registred");
+            throw new InvalidOperationException(
+                $"Type for alias \"{alias}\" not registred");
         }
     }
 }
