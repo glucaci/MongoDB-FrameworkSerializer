@@ -18,16 +18,16 @@ The object will not be dependent on any persistency library and can be designed 
 
 # Getting Started
 
-1. Defining a Serializable Object
-2. Map TypeAlias (optional)
-3. Register FrameworkSerializer
-3. Use MongoDB Collection
+1. [Defining a Serializable Object](#Defining-a-Serializable-Object)
+2. [Register FrameworkSerializer](#Register-FrameworkSerializer)
+3. [Use MongoDB Collection](#Use-MongoDB-Collection)
+
+- Optional is possible to [define a type alias](#Define-Type-Alias---optional). This will brake the coupling between the concret type name and what is saved in database.
 
 ## Defining a Serializable Object
-The object must define ```[SerializableAlias]``` attribute which will describe a `TypeAlias` and this will be mapped to the concret type. Also the object must implement ```ISerializable```.
+The object must implement [```ISerializable```](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable?view=netcore-2.1). A correct implementation of [```ISerializable```](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable?view=netcore-2.1) must define a ```private``` constructor for sealed classes or a ```protected``` constructor for unsealed classes.
 ```csharp
-[SerializableAlias("FullName")]
-public class FullName : ISerializable
+public sealed class FullName : ISerializable
 {
     private readonly string _firstName;
     private readonly string _lastName;
@@ -43,7 +43,7 @@ public class FullName : ISerializable
         return $"{fullName._firstName}, {fullName._lastName}";
     }
 
-    protected FullName(SerializationInfo info, StreamingContext context)
+    private FullName(SerializationInfo info, StreamingContext context)
     {
         if (info == null)
         {
@@ -59,12 +59,6 @@ public class FullName : ISerializable
         info.AddValue(nameof(_lastName), _lastName);
     }
 }
-```
-
-## Map TypeAlias
-The TypeAlias must be mapped on application startup.
-```csharp
-FrameworkSerializerRegistry.Map("FullName", typeof(FullName));
 ```
 ## Register FrameworkSerializer
 The FrameworkSerializer must be registerd on application startup.
@@ -94,4 +88,12 @@ await _collection.InsertOneAsync(person);
 ```csharp
 FullName fullName = (await _collection.FindAsync(Builders<FullName>.Filter.Empty))
     .FirstOrDefault();
+```
+## Define Type Alias - optional
+```csharp
+[SerializableAlias("FullName")]
+public sealed class FullName : ISerializable
+{
+    // Implementation
+}
 ```
