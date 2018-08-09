@@ -36,7 +36,7 @@ namespace MongoDB.FrameworkSerializer
                 else
                 {
                     value = ValueSerializer
-                        .Deserialize(context);
+                        .Deserialize(context.Reader);
                 }
 
                 builder.AddField(name, value);
@@ -75,7 +75,7 @@ namespace MongoDB.FrameworkSerializer
                 else
                 {
                     ValueSerializer
-                        .Serialize(context, entry.Value);
+                        .Serialize(context.Writer, entry.Value);
                 }
             }
 

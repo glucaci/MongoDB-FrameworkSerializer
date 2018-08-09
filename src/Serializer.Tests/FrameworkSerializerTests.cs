@@ -6,16 +6,8 @@ using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
 {
-    public class FrameworkSerializerTests
+    public class FrameworkSerializerTests : BaseTests
     {
-        static FrameworkSerializerTests()
-        {
-            BsonSerializer.RegisterSerializationProvider(FrameworkSerializerProvider.Instance);
-            FrameworkSerializerRegistry.Map("Email", typeof(Email));
-            FrameworkSerializerRegistry.Map("FullName", typeof(FullName));
-            FrameworkSerializerRegistry.Map("Person", typeof(Person));
-        }
-
         [Fact]
         public void Serialize_OneLevelDepthObject()
         {
