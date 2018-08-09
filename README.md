@@ -18,11 +18,11 @@ The object will not be dependent on any persistency library and can be designed 
 
 # Getting Started
 
-1. [Defining a Serializable Object](#Defining-a-Serializable-Object)
-2. [Register FrameworkSerializer](#Register-FrameworkSerializer)
-3. [Use MongoDB Collection](#Use-MongoDB-Collection)
+1. [Defining a Serializable Object](#defining-a-serializable-object)
+2. [Register FrameworkSerializer](#register-frameworkserializer)
+3. [Use MongoDB Collection](#use-mongodb-collection)
 
-- Optional is possible to [define a type alias](#Define-Type-Alias---optional). This will brake the coupling between the concret type name and what is saved in database.
+- Optional is possible to [define a type alias](#define-type-alias---optional). This will brake the coupling between the concret type name and what is saved in database.
 
 ## Defining a Serializable Object
 The object must implement [```ISerializable```](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable?view=netcore-2.1). A correct implementation of [```ISerializable```](https://docs.microsoft.com/en-us/dotnet/api/system.runtime.serialization.iserializable?view=netcore-2.1) must define a ```private``` constructor for sealed classes or a ```protected``` constructor for unsealed classes.
