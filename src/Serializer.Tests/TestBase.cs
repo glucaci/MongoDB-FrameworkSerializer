@@ -10,11 +10,6 @@ namespace MongoDB.FrameworkSerializer.Tests
         static TestBase()
         {
             BsonSerializer.RegisterSerializationProvider(FrameworkSerializerProvider.Instance);
-            FrameworkSerializerRegistry.Map("NativeTypes", typeof(NativeTypes));
-            FrameworkSerializerRegistry.Map("WithAttribute", typeof(SerializableConventionTests.WithAttribute));
-            FrameworkSerializerRegistry.Map("Email", typeof(Email));
-            FrameworkSerializerRegistry.Map("FullName", typeof(FullName));
-            FrameworkSerializerRegistry.Map("Person", typeof(Person));
         }
 
         protected string Serialize<T>(T value)

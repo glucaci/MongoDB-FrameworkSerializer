@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using MongoDB.Bson.Serialization;
 
@@ -21,8 +23,6 @@ namespace MongoDB.FrameworkSerializer
 
         public IBsonSerializer GetSerializer(Type type)
         {
-            FrameworkSerializerRegistry.Map(type.FullName, type);
-
             if (_serializers.TryGetValue(type, out var value))
             {
                 return value;
@@ -30,6 +30,8 @@ namespace MongoDB.FrameworkSerializer
 
             if (typeof(ISerializable).IsAssignableFrom(type))
             {
+                RegisterType(type);
+
                 var serializerType = typeof(FrameworkSerializer<>)
                     .MakeGenericType(type);
                 
@@ -42,6 +44,23 @@ namespace MongoDB.FrameworkSerializer
             }
 
             return null;
+        }
+
+        private static void RegisterType(Type type)
+        {
+            SerializableAliasAttribute serializableAlias =
+                (SerializableAliasAttribute)type
+                    .GetCustomAttributes(typeof(SerializableAliasAttribute))
+                    .FirstOrDefault();
+
+            if (serializableAlias != null)
+            {
+                FrameworkSerializerRegistry.Map(serializableAlias.Value, type);
+            }
+            else
+            {
+                FrameworkSerializerRegistry.Map(type.FullName, type);
+            }
         }
     }
 }
