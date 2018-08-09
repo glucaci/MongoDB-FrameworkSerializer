@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.FrameworkSerializer.Tests.Models;
 using Xunit;
 
@@ -13,18 +10,8 @@ namespace MongoDB.FrameworkSerializer.Tests
         public void Serialize_MaxValues()
         {
             NativeTypes nativeTypes = new NativeTypes(withMaxValues: true);
-            IBsonSerializer<NativeTypes> serializer = BsonSerializer.LookupSerializer<NativeTypes>();
 
-            string result;
-            using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(writer);
-                var args = new BsonSerializationArgs {NominalType = typeof(NativeTypes) };
-
-                serializer.Serialize(context, args, nativeTypes);
-                result = textWriter.ToString();
-            }
+            string result = Serialize(nativeTypes);
 
             Assert.NotNull(result);
             Assert.Equal(
@@ -53,18 +40,8 @@ namespace MongoDB.FrameworkSerializer.Tests
         public void Serialize_MinValues()
         {
             NativeTypes nativeTypes = new NativeTypes(withMaxValues: false);
-            IBsonSerializer<NativeTypes> serializer = BsonSerializer.LookupSerializer<NativeTypes>();
 
-            string result;
-            using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(writer);
-                var args = new BsonSerializationArgs { NominalType = typeof(NativeTypes) };
-
-                serializer.Serialize(context, args, nativeTypes);
-                result = textWriter.ToString();
-            }
+            string result = Serialize(nativeTypes);
 
             Assert.NotNull(result);
             Assert.Equal(
@@ -92,7 +69,6 @@ namespace MongoDB.FrameworkSerializer.Tests
         [Fact]
         public void Deserialize_MaxValues()
         {
-            IBsonSerializer<NativeTypes> serializer = BsonSerializer.LookupSerializer<NativeTypes>();
             string input =
                 "{ " +
                     "\"__typeAlias\" : \"NativeTypes\", " +
@@ -114,15 +90,7 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Null\" : null " +
                 "}";
 
-            NativeTypes result;
-            using (var textReader = new StringReader(input))
-            using (var reader = new JsonReader(textReader))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                var args = new BsonDeserializationArgs { NominalType = typeof(NativeTypes) };
-
-                result = serializer.Deserialize(context, args);
-            }
+            NativeTypes result = Deserialize<NativeTypes>(input);
 
             Assert.NotNull(result);
             Assert.True(result.Bool);
@@ -146,7 +114,6 @@ namespace MongoDB.FrameworkSerializer.Tests
         [Fact]
         public void Deserialize_MinValues()
         {
-            IBsonSerializer<NativeTypes> serializer = BsonSerializer.LookupSerializer<NativeTypes>();
             string input =
                 "{ " +
                     "\"__typeAlias\" : \"NativeTypes\", " +
@@ -168,15 +135,7 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Null\" : null " +
                 "}";
 
-            NativeTypes result;
-            using (var textReader = new StringReader(input))
-            using (var reader = new JsonReader(textReader))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                var args = new BsonDeserializationArgs { NominalType = typeof(NativeTypes) };
-
-                result = serializer.Deserialize(context, args);
-            }
+            NativeTypes result = Deserialize<NativeTypes>(input);
 
             Assert.NotNull(result);
             Assert.False(result.Bool);

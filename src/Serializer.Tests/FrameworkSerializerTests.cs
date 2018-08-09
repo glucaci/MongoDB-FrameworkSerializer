@@ -1,7 +1,4 @@
-﻿using System.IO;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
-using MongoDB.FrameworkSerializer.Tests.Models;
+﻿using MongoDB.FrameworkSerializer.Tests.Models;
 using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
@@ -12,18 +9,8 @@ namespace MongoDB.FrameworkSerializer.Tests
         public void Serialize_OneLevelDepthObject()
         {
             FullName person = new FullName("Foo", "Bar");
-            IBsonSerializer<FullName> serializer = BsonSerializer.LookupSerializer<FullName>();
 
-            string result;
-            using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(writer);
-                var args = new BsonSerializationArgs {NominalType = typeof(FullName)};
-
-                serializer.Serialize(context, args, person);
-                result = textWriter.ToString();
-            }
+            string result = Serialize(person);
 
             Assert.NotNull(result);
             Assert.Equal(
@@ -37,7 +24,6 @@ namespace MongoDB.FrameworkSerializer.Tests
         [Fact]
         public void Deserialize_OneLevelDepthObject()
         {
-            IBsonSerializer<FullName> serializer = BsonSerializer.LookupSerializer<FullName>();
             string input =
                 "{ " +
                     "\"__typeAlias\" : \"FullName\", " +
@@ -45,15 +31,7 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"_lastName\" : \"Bar\" " +
                 "}";
 
-            FullName result;
-            using (var textReader = new StringReader(input))
-            using (var reader = new JsonReader(textReader))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                var args = new BsonDeserializationArgs { NominalType = typeof(FullName) };
-
-                result = serializer.Deserialize(context, args);
-            }
+            FullName result = Deserialize<FullName>(input);
 
             Assert.NotNull(result);
             Assert.Equal("Foo, Bar", (string)result);
@@ -63,18 +41,8 @@ namespace MongoDB.FrameworkSerializer.Tests
         public void Serialize_TwoLevelDepthObject()
         {
             Person person = new Person(new Email("foo@gmail.com"), new FullName("Foo", "Bar"));
-            IBsonSerializer<Person> serializer = BsonSerializer.LookupSerializer<Person>();
 
-            string result;
-            using (var textWriter = new StringWriter())
-            using (var writer = new JsonWriter(textWriter))
-            {
-                var context = BsonSerializationContext.CreateRoot(writer);
-                var args = new BsonSerializationArgs { NominalType = typeof(Person) };
-
-                serializer.Serialize(context, args, person);
-                result = textWriter.ToString();
-            }
+            string result = Serialize(person);
 
             Assert.NotNull(result);
             Assert.Equal(
@@ -95,7 +63,6 @@ namespace MongoDB.FrameworkSerializer.Tests
         [Fact]
         public void Deserialize_TwoLevelDepthObject()
         {
-            IBsonSerializer<Person> serializer = BsonSerializer.LookupSerializer<Person>();
             string input =
                 "{ " +
                     "\"__typeAlias\" : \"Person\", " +
@@ -110,15 +77,7 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "} " +
                 "}";
 
-            Person result;
-            using (var textReader = new StringReader(input))
-            using (var reader = new JsonReader(textReader))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                var args = new BsonDeserializationArgs { NominalType = typeof(Person) };
-
-                result = serializer.Deserialize(context, args);
-            }
+            Person result = Deserialize<Person>(input);
 
             Assert.NotNull(result);
             Assert.Equal(new FullName("Foo", "Bar"), result.FullName);
