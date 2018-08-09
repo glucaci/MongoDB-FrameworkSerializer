@@ -19,7 +19,7 @@ The object will not be dependent on any persistency library and can be designed 
 # Getting Started
 
 1. Defining a Serializable Object
-2. Map TypeAlias ([Issue](https://github.com/glucaci/MongoDB-FrameworkSerializer/issues/2) - will be optional)
+2. Map TypeAlias (optional)
 3. Register FrameworkSerializer
 3. Use MongoDB Collection
 
