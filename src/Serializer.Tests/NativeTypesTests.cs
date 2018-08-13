@@ -31,6 +31,11 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Short\" : 32767, " +
                     "\"Ushort\" : 65535, " +
                     "\"String\" : \"Foo\", " +
+                    "\"DateTime\" : { " +
+                        "\"__type\" : \"System.DateTime\", " +
+                        "\"ticks\" : NumberLong(\"3155378975999999999\"), " +
+                        "\"dateData\" : \"3155378975999999999\" " +
+                    "}, " +
                     "\"Guid\" : \"00000000-0000-0000-0000-000000000000\", " +
                     "\"Null\" : null " +
                 "}", result);
@@ -61,6 +66,11 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Short\" : -32768, " +
                     "\"Ushort\" : 0, " +
                     "\"String\" : \"Foo\", " +
+                    "\"DateTime\" : { " +
+                        "\"__type\" : \"System.DateTime\", " +
+                        "\"ticks\" : NumberLong(0), " +
+                        "\"dateData\" : \"0\" " +
+                    "}, " +
                     "\"Guid\" : \"00000000-0000-0000-0000-000000000000\", " +
                     "\"Null\" : null " +
                 "}", result);
@@ -86,6 +96,11 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Short\" : 32767, " +
                     "\"Ushort\" : 65535, " +
                     "\"String\" : \"Foo\", " +
+                    "\"DateTime\" : { " +
+                        "\"__type\" : \"System.DateTime\", " +
+                        "\"ticks\" : NumberLong(\"3155378975999999999\"), " +
+                        "\"dateData\" : \"3155378975999999999\" " +
+                    "}, " +
                     "\"Guid\" : \"00000000-0000-0000-0000-000000000000\", " +
                     "\"Null\" : null " +
                 "}";
@@ -107,6 +122,7 @@ namespace MongoDB.FrameworkSerializer.Tests
             Assert.Equal(short.MaxValue, result.Short);
             Assert.Equal(ushort.MaxValue, result.Ushort);
             Assert.Equal("Foo", result.String);
+            Assert.Equal(DateTime.MaxValue, result.DateTime);
             Assert.Equal(Guid.Empty, result.Guid);
             Assert.Null(result.Null);
         }
@@ -131,6 +147,11 @@ namespace MongoDB.FrameworkSerializer.Tests
                     "\"Short\" : -32768, " +
                     "\"Ushort\" : 0, " +
                     "\"String\" : \"Foo\", " +
+                    "\"DateTime\" : { " +
+                        "\"__type\" : \"System.DateTime\", " +
+                        "\"ticks\" : NumberLong(0), " +
+                        "\"dateData\" : \"0\" " +
+                    "}, " +
                     "\"Guid\" : \"00000000-0000-0000-0000-000000000000\", " +
                     "\"Null\" : null " +
                 "}";
@@ -152,6 +173,7 @@ namespace MongoDB.FrameworkSerializer.Tests
             Assert.Equal(short.MinValue, result.Short);
             Assert.Equal(ushort.MinValue, result.Ushort);
             Assert.Equal("Foo", result.String);
+            Assert.Equal(DateTime.MinValue, result.DateTime);
             Assert.Equal(Guid.Empty, result.Guid);
             Assert.Null(result.Null);
         }

@@ -66,7 +66,7 @@ namespace MongoDB.FrameworkSerializer.Tests.Models
             Short = info.GetInt16(nameof(Short));
             Ushort = info.GetUInt16(nameof(Ushort));
             String = info.GetString(nameof(String));
-            // TODO: DateTime = info.GetDateTime(nameof(DateTime));
+            DateTime = info.GetDateTime(nameof(DateTime));
             Guid = Guid.Parse(info.GetString(nameof(Guid)));
             Null = info.GetValue(nameof(Null), typeof(object));
         }
@@ -87,7 +87,7 @@ namespace MongoDB.FrameworkSerializer.Tests.Models
             info.AddValue(nameof(Short), Short);
             info.AddValue(nameof(Ushort), Ushort);
             info.AddValue(nameof(String), String);
-            // TODO: info.AddValue(nameof(DateTime), DateTime);
+            info.AddValue(nameof(DateTime), DateTime);
             info.AddValue(nameof(Guid), Guid);
             info.AddValue(nameof(Null), Null);
         }
