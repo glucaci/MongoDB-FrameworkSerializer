@@ -13,7 +13,8 @@ namespace MongoDB.FrameworkSerializer
         private static readonly Type StreamingContextType =
             typeof(StreamingContext);
 
-        internal static ConstructorInfo GetSerializableConstructor(this Type type)
+        internal static ConstructorInfo GetSerializableConstructor(
+            this Type type)
         {
             ConstructorInfo constructorInfo = type
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -36,6 +37,18 @@ namespace MongoDB.FrameworkSerializer
             }
 
             return constructorInfo;
+        }
+
+        internal static ISerializable InvokeSerializableConstructor(
+            this Type type, SerializationInfo info)
+        {
+            return type
+                .GetSerializableConstructor()
+                .Invoke(new object[]
+                {
+                    info,
+                    SerializationContext.Instance
+                }) as ISerializable;
         }
     }
 }

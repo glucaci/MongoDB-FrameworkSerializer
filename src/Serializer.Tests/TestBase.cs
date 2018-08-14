@@ -39,7 +39,7 @@ namespace MongoDB.FrameworkSerializer.Tests
             using (var reader = new JsonReader(textReader))
             {
                 var context = BsonDeserializationContext.CreateRoot(reader);
-                var args = new BsonDeserializationArgs { NominalType = typeof(NativeTypes) };
+                var args = new BsonDeserializationArgs { NominalType = typeof(T) };
 
                 result = serializer.Deserialize(context, args);
             }

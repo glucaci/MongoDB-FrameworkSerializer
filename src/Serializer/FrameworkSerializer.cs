@@ -20,10 +20,12 @@ namespace MongoDB.FrameworkSerializer
 
         private ISerializable DeserializeCore(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-            TypeBuilder builder = new TypeBuilder();
             context.Reader.ReadStartDocument();
 
-            while(context.Reader.ReadBsonType() != BsonType.EndOfDocument)
+            SerializationInfo info = new SerializationInfo(
+                args.NominalType, new FormatterConverter());
+
+            while (context.Reader.ReadBsonType() != BsonType.EndOfDocument)
             {
                 string name = context.Reader.ReadName();
                 BsonType type = context.Reader.GetCurrentBsonType();
@@ -31,7 +33,21 @@ namespace MongoDB.FrameworkSerializer
 
                 if (type == BsonType.Document)
                 {
-                    value = DeserializeCore(context, args);
+                    Type currentType = context.Reader
+                        .FindDocumentType(args.NominalType);
+
+                    var serializer = BsonSerializer
+                        .LookupSerializer(currentType);
+
+                    var currentContext = BsonDeserializationContext
+                        .CreateRoot(context.Reader);
+
+                    value = serializer.Deserialize(
+                        currentContext,
+                        new BsonDeserializationArgs
+                        {
+                            NominalType = currentType
+                        });
                 }
                 else
                 {
@@ -39,12 +55,13 @@ namespace MongoDB.FrameworkSerializer
                         .Deserialize(context.Reader);
                 }
 
-                builder.AddField(name, value);
+                info.AddValue(name, value);
             }
 
             context.Reader.ReadEndDocument();
 
-            return builder.Build();
+            return args.NominalType
+                .InvokeSerializableConstructor(info);
         }
 
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
