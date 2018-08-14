@@ -67,8 +67,7 @@ namespace MongoDB.FrameworkSerializer
                 if (entry.Value is ISerializable)
                 {
                     var serializer = BsonSerializer
-                        .SerializerRegistry
-                        .GetSerializer(entry.ObjectType);
+                        .LookupSerializer(entry.ObjectType);
 
                     serializer.Serialize(context, args, entry.Value);
                 }

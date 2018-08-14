@@ -9,12 +9,6 @@ namespace MongoDB.FrameworkSerializer
 {
     public class FrameworkSerializerProvider : IBsonSerializationProvider
     {
-        private static readonly object[] FrameworkSerializerParameters
-            = new object[0];
-
-        private static readonly Type[] FrameworkSerializerConstructorTypes
-            = new Type[0];
-
         public static FrameworkSerializerProvider Instance { get; }
             = new FrameworkSerializerProvider();
 
@@ -34,13 +28,10 @@ namespace MongoDB.FrameworkSerializer
 
                 var serializerType = typeof(FrameworkSerializer<>)
                     .MakeGenericType(type);
-                
-                var serializer = serializerType
-                    .GetConstructor(FrameworkSerializerConstructorTypes)
-                    .Invoke(FrameworkSerializerParameters);
 
+                var serializer = Activator.CreateInstance(serializerType);
                 return _serializers
-                    .GetOrAdd(type, (IBsonSerializer)serializer);
+                    .GetOrAdd(type, (IBsonSerializer) serializer);
             }
 
             return null;
@@ -49,7 +40,7 @@ namespace MongoDB.FrameworkSerializer
         private static void RegisterType(Type type)
         {
             SerializableAliasAttribute serializableAlias =
-                (SerializableAliasAttribute)type
+                (SerializableAliasAttribute) type
                     .GetCustomAttributes(typeof(SerializableAliasAttribute))
                     .FirstOrDefault();
 
