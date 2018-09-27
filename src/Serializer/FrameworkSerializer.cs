@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.FrameworkSerializer
 {
@@ -49,6 +51,11 @@ namespace MongoDB.FrameworkSerializer
                             NominalType = currentType
                         });
                 }
+                else if(type == BsonType.Array)
+                {
+                    value = BsonArraySerializer.Instance.Deserialize(
+                        context, args).ToDotNetValue();
+                }
                 else
                 {
                     value = ValueSerializer
@@ -87,6 +94,16 @@ namespace MongoDB.FrameworkSerializer
                         .LookupSerializer(entry.ObjectType);
 
                     serializer.Serialize(context, args, entry.Value);
+                }
+                else if (entry.Value is IEnumerable values)
+                {
+                    // TODO: For the moment the Mongo-Enumerable serializer
+                    // TODO: is not writing the entire namespace of the collection type
+                    // TODO: to the document.
+
+                    // TODO: Find a better way.
+                    BsonArraySerializer.Instance.Serialize(
+                        context, args, new BsonArray(values));
                 }
                 else
                 {
