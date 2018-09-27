@@ -49,8 +49,8 @@ public sealed class FullName : ISerializable
         {
             throw new ArgumentNullException(nameof(info));
         }
-        _firstName = info.GetString(nameof(_firstName));
-        _lastName = info.GetString(nameof(_lastName));
+        _firstName = info.GetValue<string>(nameof(_firstName));
+        _lastName = info.GetValue<string>(nameof(_lastName));
     }
 
     void ISerializable.GetObjectData(SerializationInfo info,StreamingContext context)
