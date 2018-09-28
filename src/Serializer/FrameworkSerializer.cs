@@ -27,72 +27,25 @@ namespace MongoDB.FrameworkSerializer
             SerializationInfo info = new SerializationInfo(
                 args.NominalType, new FormatterConverter());
 
-            while (context.Reader.ReadBsonType() != BsonType.EndOfDocument)
+            while (IsEndOfDocument(context))
             {
                 string name = context.Reader.ReadName();
                 BsonType type = context.Reader.GetCurrentBsonType();
                 object value;
 
-                if (type == BsonType.Document)
+                switch (type)
                 {
-                    Type currentType = context.Reader
-                        .FindDocumentType(args.NominalType);
+                    case BsonType.Document:
+                        value = DeserializeDocument(context, args);
+                        break;
 
-                    var serializer = BsonSerializer
-                        .LookupSerializer(currentType);
+                    case BsonType.Array:
+                        value = DeserializeArray(context, args);
+                        break;
 
-                    var currentContext = BsonDeserializationContext
-                        .CreateRoot(context.Reader);
-
-                    value = serializer.Deserialize(
-                        currentContext,
-                        new BsonDeserializationArgs
-                        {
-                            NominalType = currentType
-                        });
-                }
-                else if(type == BsonType.Array)
-                {
-                    // TODO: Remove duplication
-
-                    context.Reader.ReadStartArray();
-                    List<object> items = new List<object>();
-                    
-                    while (context.Reader.ReadBsonType() != BsonType.EndOfDocument)
-                    {
-                        BsonType itemType = context.Reader.GetCurrentBsonType();
-                        if (itemType == BsonType.Document)
-                        {
-                            Type currentType = context.Reader
-                                .FindDocumentType(args.NominalType);
-
-                            var serializer = BsonSerializer
-                                .LookupSerializer(currentType);
-
-                            var currentContext = BsonDeserializationContext
-                                .CreateRoot(context.Reader);
-
-                            items.Add(serializer.Deserialize(
-                                currentContext,
-                                new BsonDeserializationArgs
-                                {
-                                    NominalType = currentType
-                                }));
-                        }
-                        else
-                        {
-                            items.Add(ValueSerializer
-                                .Deserialize(context.Reader));
-                        }
-                    }
-
-                    context.Reader.ReadEndArray();
-                    value = items.ToArray();
-                }
-                else
-                {
-                    value = ValueSerializer
-                        .Deserialize(context.Reader);
+                    default:
+                        value = DeserializeValue(context);
+                        break;
                 }
 
                 info.AddValue(name, value);
@@ -102,6 +55,70 @@ namespace MongoDB.FrameworkSerializer
 
             return args.NominalType
                 .InvokeSerializableConstructor(info);
+        }
+
+        private static object DeserializeDocument(
+            BsonDeserializationContext context,
+            BsonDeserializationArgs args)
+        {
+            Type currentType = context.Reader
+                .FindDocumentType(args.NominalType);
+
+            IBsonSerializer serializer = BsonSerializer
+                .LookupSerializer(currentType);
+
+            BsonDeserializationContext currentContext = BsonDeserializationContext
+                .CreateRoot(context.Reader);
+
+            return serializer.Deserialize(
+                currentContext,
+                new BsonDeserializationArgs
+                {
+                    NominalType = currentType
+                });
+        }
+
+        private static object DeserializeArray(
+            BsonDeserializationContext context,
+            BsonDeserializationArgs args)
+        {
+            context.Reader.ReadStartArray();
+
+            List<object> items = ReadArrayItems(context, args);
+
+            context.Reader.ReadEndArray();
+
+            return items.ToArray();
+        }
+
+        private static object DeserializeValue(
+            BsonDeserializationContext context)
+        {
+            return ValueSerializer
+                .Deserialize(context.Reader);
+        }
+
+        private static List<object> ReadArrayItems(
+            BsonDeserializationContext context,
+            BsonDeserializationArgs args)
+        {
+            List<object> items = new List<object>();
+
+            while (IsEndOfDocument(context))
+            {
+                BsonType itemType = context.Reader.GetCurrentBsonType();
+                items.Add(itemType == BsonType.Document
+                    ? DeserializeDocument(context, args)
+                    : DeserializeValue(context));
+            }
+
+            return items;
+        }
+
+        private static bool IsEndOfDocument(
+            BsonDeserializationContext context)
+        {
+            return context.Reader.ReadBsonType() != BsonType.EndOfDocument;
         }
 
         public void Serialize(BsonSerializationContext context, BsonSerializationArgs args, object value)
@@ -114,52 +131,68 @@ namespace MongoDB.FrameworkSerializer
             context.Writer.WriteStartDocument();
             context.Writer.WriteTypeInformation(value);
 
-            SerializationInfo info = ((ISerializable)value)
-                .GetSerializationInfo();
-
-            foreach (SerializationEntry entry in info)
-            {
-                context.Writer.WriteName(entry.Name);
-
-                if (entry.Value is ISerializable)
+            ((ISerializable)value)
+                .GetSerializationInfo()
+                .ForEach(entry =>
                 {
-                    var serializer = BsonSerializer
-                        .LookupSerializer(entry.ObjectType);
-
-                    serializer.Serialize(context, args, entry.Value);
-                }
-                else if (entry.Value is ICollection items)
-                {
-                    // TODO: Remove duplication
-
-                    context.Writer.WriteStartArray();
-
-                    foreach (var item in items)
-                    {
-                        if (item is ISerializable)
-                        {
-                            var serializer = BsonSerializer
-                                .LookupSerializer(item.GetType());
-
-                            serializer.Serialize(context, args, item);
-                        }
-                        else
-                        {
-                            ValueSerializer
-                                .Serialize(context.Writer, item);
-                        }
-                    }
-
-                    context.Writer.WriteEndArray();
-                }
-                else
-                {
-                    ValueSerializer
-                        .Serialize(context.Writer, entry.Value);
-                }
-            }
+                    context.Writer.WriteName(entry.Name);
+                    SerializeObject(context, args, entry.Value);
+                });
 
             context.Writer.WriteEndDocument();
+        }
+
+        private static void SerializeObject(
+            BsonSerializationContext context,
+            BsonSerializationArgs args,
+            object value)
+        {
+            switch (value)
+            {
+                case ISerializable serializableValue:
+                    SerializeISerializable(context, args, serializableValue);
+                    break;
+
+                case ICollection items:
+                    SerializeICollection(context, args, items);
+                    break;
+
+                default:
+                    SerializeValue(context, value);
+                    break;
+            }
+        }
+
+        private static void SerializeISerializable(
+            BsonSerializationContext context,
+            BsonSerializationArgs args,
+            object value)
+        {
+            var serializer = BsonSerializer
+                .LookupSerializer(value.GetType());
+
+            serializer.Serialize(context, args, value);
+        }
+
+        private static void SerializeICollection(
+            BsonSerializationContext context,
+            BsonSerializationArgs args,
+            ICollection collection)
+        {
+            context.Writer.WriteStartArray();
+
+            collection
+                .ForEach(item => SerializeObject(context, args, item));
+
+            context.Writer.WriteEndArray();
+        }
+
+        private static void SerializeValue(
+            BsonSerializationContext context,
+            object value)
+        {
+            ValueSerializer
+                .Serialize(context.Writer, value);
         }
 
         public Type ValueType => typeof(T);
