@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.FrameworkSerializer
 {
@@ -53,8 +53,41 @@ namespace MongoDB.FrameworkSerializer
                 }
                 else if(type == BsonType.Array)
                 {
-                    value = BsonArraySerializer.Instance.Deserialize(
-                        context, args).ToDotNetValue();
+                    // TODO: Remove duplication
+
+                    context.Reader.ReadStartArray();
+                    List<object> items = new List<object>();
+                    
+                    while (context.Reader.ReadBsonType() != BsonType.EndOfDocument)
+                    {
+                        BsonType itemType = context.Reader.GetCurrentBsonType();
+                        if (itemType == BsonType.Document)
+                        {
+                            Type currentType = context.Reader
+                                .FindDocumentType(args.NominalType);
+
+                            var serializer = BsonSerializer
+                                .LookupSerializer(currentType);
+
+                            var currentContext = BsonDeserializationContext
+                                .CreateRoot(context.Reader);
+
+                            items.Add(serializer.Deserialize(
+                                currentContext,
+                                new BsonDeserializationArgs
+                                {
+                                    NominalType = currentType
+                                }));
+                        }
+                        else
+                        {
+                            items.Add(ValueSerializer
+                                .Deserialize(context.Reader));
+                        }
+                    }
+
+                    context.Reader.ReadEndArray();
+                    value = items.ToArray();
                 }
                 else
                 {
@@ -95,15 +128,29 @@ namespace MongoDB.FrameworkSerializer
 
                     serializer.Serialize(context, args, entry.Value);
                 }
-                else if (entry.Value is IEnumerable values)
+                else if (entry.Value is ICollection items)
                 {
-                    // TODO: For the moment the Mongo-Enumerable serializer
-                    // TODO: is not writing the entire namespace of the collection type
-                    // TODO: to the document.
+                    // TODO: Remove duplication
 
-                    // TODO: Find a better way.
-                    BsonArraySerializer.Instance.Serialize(
-                        context, args, new BsonArray(values));
+                    context.Writer.WriteStartArray();
+
+                    foreach (var item in items)
+                    {
+                        if (item is ISerializable)
+                        {
+                            var serializer = BsonSerializer
+                                .LookupSerializer(item.GetType());
+
+                            serializer.Serialize(context, args, item);
+                        }
+                        else
+                        {
+                            ValueSerializer
+                                .Serialize(context.Writer, item);
+                        }
+                    }
+
+                    context.Writer.WriteEndArray();
                 }
                 else
                 {

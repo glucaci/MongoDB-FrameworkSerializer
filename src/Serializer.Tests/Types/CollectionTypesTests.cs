@@ -1,4 +1,4 @@
-﻿using MongoDB.FrameworkSerializer.Tests.Models;
+﻿using MongoDB.FrameworkSerializer.Tests.Types;
 using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
@@ -30,6 +30,18 @@ namespace MongoDB.FrameworkSerializer.Tests
                         "1.0, " +
                         "3.0, " +
                         "5.0" +
+                    "], " +
+                    "\"ListOfCustom\" : [" +
+                        "{ " +
+                            "\"__typeAlias\" : \"CustomType\", " +
+                            "\"String\" : \"Custom1\", " +
+                            "\"Double\" : 128.0 " +
+                        "}, " +
+                        "{ " +
+                            "\"__typeAlias\" : \"CustomType\", " +
+                            "\"String\" : \"Custom2\", " +
+                            "\"Double\" : 256.0 " +
+                        "}" +
                     "] " +
                 "}", result);
         }
@@ -55,6 +67,18 @@ namespace MongoDB.FrameworkSerializer.Tests
                         "3.0, " +
                         "5.0" +
                     "] " +
+                    "\"ListOfCustom\" : [" +
+                        "{ " +
+                            "\"__typeAlias\" : \"CustomType\", " +
+                            "\"String\" : \"Custom1\", " +
+                            "\"Double\" : 128.0 " +
+                        "}, " +
+                        "{ " +
+                            "\"__typeAlias\" : \"CustomType\", " +
+                            "\"String\" : \"Custom2\", " +
+                            "\"Double\" : 256.0 " +
+                        "}" +
+                    "] " +
                 "}";
 
             CollectionTypes result = Deserialize<CollectionTypes>(input);
@@ -63,6 +87,17 @@ namespace MongoDB.FrameworkSerializer.Tests
             Assert.Equal(new [] { 1, 3, 5 }, result.ListOfInt);
             Assert.Equal(new [] { "1", "3", "5" }, result.CollectionOfString);
             Assert.Equal(new [] { 1.0, 3.0, 5.0 }, result.ImmutableListOfDouble);
+            Assert.Collection(result.ListOfCustom,
+                type =>
+                {
+                    Assert.Equal("Custom1", type.String);
+                    Assert.Equal(128.0, type.Double);
+                },
+                type =>
+                {
+                    Assert.Equal("Custom2", type.String);
+                    Assert.Equal(256.0, type.Double);
+                });
         }
     }
 }

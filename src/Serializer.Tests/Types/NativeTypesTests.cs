@@ -1,5 +1,5 @@
 ﻿using System;
-using MongoDB.FrameworkSerializer.Tests.Models;
+using MongoDB.FrameworkSerializer.Tests.Types;
 using Xunit;
 
 namespace MongoDB.FrameworkSerializer.Tests
