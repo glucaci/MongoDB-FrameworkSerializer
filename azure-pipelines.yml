@@ -6,22 +6,22 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
-- task: DotNetCoreInstaller@0
+task: DotNetCoreInstaller@0
   inputs:
     version: '2.1.402'
 
-- task: DotNetCoreCLI@2
+task: DotNetCoreCLI@2
   inputs:
     command: restore
     projects: '**/*.csproj'
 
-- task: DotNetCoreCLI@2
+task: DotNetCoreCLI@2
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
 
-- task: NuGetCommand@2
+task: NuGetCommand@2
   inputs:
     command: pack
     packagesToPack: '**/*.csproj'
