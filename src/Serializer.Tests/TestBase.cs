@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.FrameworkSerializer.Tests.Models;
 
 namespace MongoDB.FrameworkSerializer.Tests
 {
