@@ -11,7 +11,7 @@ The object will not be dependent on any persistency library and can be designed 
 ### Support
 - [x] Primitive type
 - [x] Object
-- [x] Collections (Supports also ISerializable items)
+- [x] Collections
 - [ ] Interface
 - [ ] Abstract class
 - [ ] Cycle dependency
